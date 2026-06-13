@@ -6,11 +6,11 @@ import tailwindcss from '@tailwindcss/vite'
 
 const SITE = process.env.PUBLIC_SITE_URL || 'http://localhost:4321'
 
-// Static build by default (SSG). The /api/preview route opts into SSR per-route
-// via `export const prerender = false`. Vercel adapter supports both.
+// Public pages render on demand so published CMS changes appear immediately.
+// Draft content remains isolated to the dedicated preview route.
 export default defineConfig({
   site: SITE,
-  output: 'static',
+  output: 'server',
   adapter: vercel(),
   integrations: [sitemap()],
   vite: {

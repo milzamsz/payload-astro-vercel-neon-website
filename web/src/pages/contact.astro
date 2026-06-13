@@ -1,19 +1,17 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { getSite } from '@/lib/data'
+import BlockRenderer from '@/components/blocks/BlockRenderer.astro'
+import { getPage, getSite } from '@/lib/data'
 import { breadcrumbSchema } from '@/lib/seo'
 
 const site = await getSite()
-
-// These come from env once the CMS form exists. Until then the form shows a
-// configuration notice instead of silently failing.
-const CMS_URL = import.meta.env.PUBLIC_CMS_URL || ''
-const FORM_ID = import.meta.env.PUBLIC_CONTACT_FORM_ID || ''
+const page = await getPage('contact')
+if (!page) return Astro.redirect('/404')
 ---
 
 <Layout
-  title="Contact"
-  description="Tell us about your project. We reply to every serious enquiry within two business days."
+  title={page.title}
+  description={page.seo?.description}
   jsonLd={[
     breadcrumbSchema(
       [
@@ -24,114 +22,5 @@ const FORM_ID = import.meta.env.PUBLIC_CONTACT_FORM_ID || ''
     ),
   ]}
 >
-  <section class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-    <div class="grid gap-12 md:grid-cols-2">
-      <div data-reveal>
-        <h1 class="text-4xl font-semibold tracking-tighter md:text-5xl">Start a project</h1>
-        <p class="mt-4 max-w-md text-lg" style="color: var(--fg-muted);">
-          Tell us what you are building and where it is stuck. We reply to every serious enquiry
-          within two business days.
-        </p>
-        <p class="mt-8 text-sm" style="color: var(--fg-muted);">Prefer email?</p>
-        <a href={`mailto:${site.contactEmail}`} class="text-lg" style="color: var(--color-accent);">
-          {site.contactEmail}
-        </a>
-      </div>
-
-      <form id="contact-form" class="grid gap-5" data-reveal data-cms={CMS_URL} data-form={FORM_ID}>
-        <div class="grid gap-2">
-          <label for="name" class="text-sm font-medium">Name</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            required
-            class="rounded-[var(--radius-btn)] border px-3.5 py-2.5 text-sm outline-none focus:border-[var(--color-accent)]"
-            style="border-color: var(--border); background-color: var(--bg);"
-          />
-        </div>
-        <div class="grid gap-2">
-          <label for="email" class="text-sm font-medium">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            class="rounded-[var(--radius-btn)] border px-3.5 py-2.5 text-sm outline-none focus:border-[var(--color-accent)]"
-            style="border-color: var(--border); background-color: var(--bg);"
-          />
-        </div>
-        <div class="grid gap-2">
-          <label for="message" class="text-sm font-medium">What are you building?</label>
-          <textarea
-            id="message"
-            name="message"
-            rows="5"
-            required
-            class="resize-y rounded-[var(--radius-btn)] border px-3.5 py-2.5 text-sm outline-none focus:border-[var(--color-accent)]"
-            style="border-color: var(--border); background-color: var(--bg);"
-          ></textarea>
-        </div>
-
-        <button
-          type="submit"
-          class="inline-flex items-center justify-center rounded-[var(--radius-btn)] px-5 py-2.5 text-sm font-medium transition active:scale-[0.98] disabled:opacity-60"
-          style="background-color: var(--color-accent); color: var(--color-accent-fg);"
-        >
-          <span data-label>Send message</span>
-        </button>
-
-        <p id="form-status" role="status" aria-live="polite" class="hidden text-sm"></p>
-      </form>
-    </div>
-  </section>
+  <BlockRenderer blocks={page.blocks} />
 </Layout>
-
-<script is:inline>
-  ;(function () {
-    var form = document.getElementById('contact-form')
-    if (!form) return
-    var status = document.getElementById('form-status')
-    var btn = form.querySelector('button[type=submit]')
-    var label = form.querySelector('[data-label]')
-    var cms = form.getAttribute('data-cms')
-    var formId = form.getAttribute('data-form')
-
-    function setStatus(msg, ok) {
-      status.textContent = msg
-      status.classList.remove('hidden')
-      status.style.color = ok ? 'var(--color-accent)' : 'oklch(0.6 0.2 25)'
-    }
-
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault()
-      if (!cms || !formId) {
-        setStatus('Form not yet connected. Set PUBLIC_CMS_URL and PUBLIC_CONTACT_FORM_ID.', false)
-        return
-      }
-      var data = new FormData(form)
-      var submissionData = []
-      data.forEach(function (value, field) {
-        submissionData.push({ field: field, value: value })
-      })
-
-      btn.disabled = true
-      label.textContent = 'Sending...'
-      try {
-        var res = await fetch(cms.replace(/\/$/, '') + '/api/form-submissions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ form: formId, submissionData: submissionData }),
-        })
-        if (!res.ok) throw new Error('Request failed')
-        form.reset()
-        setStatus('Thanks. We will be in touch within two business days.', true)
-        label.textContent = 'Sent'
-      } catch (err) {
-        setStatus('Something went wrong. Email us directly and we will sort it.', false)
-        btn.disabled = false
-        label.textContent = 'Send message'
-      }
-    })
-  })()
-</script>

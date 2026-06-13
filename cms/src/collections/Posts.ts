@@ -7,13 +7,23 @@ import { triggerDeployAfterChange } from '../hooks/triggerDeploy'
 import { populatePublishedAt } from '../hooks/populatePublishedAt'
 import { getServerURL } from '../utilities/getURL'
 
+const previewBase = (process.env.PUBLIC_WEB_URL || getServerURL()).replace(/\/$/, '')
+const previewSecret = process.env.PREVIEW_SECRET
+
 export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'publishedAt', '_status'],
     livePreview: {
-      url: ({ data }) => `${process.env.PUBLIC_WEB_URL || getServerURL()}/blog/${data?.slug ?? ''}`,
+      url: ({ data }) => {
+        const params = new URLSearchParams({
+          type: 'post',
+          slug: data?.slug ?? '',
+        })
+        if (previewSecret) params.set('secret', previewSecret)
+        return `${previewBase}/preview?${params.toString()}`
+      },
     },
   },
   access: {

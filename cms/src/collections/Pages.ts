@@ -7,14 +7,23 @@ import { layoutBlocks } from '../blocks'
 import { triggerDeployAfterChange } from '../hooks/triggerDeploy'
 import { getServerURL } from '../utilities/getURL'
 
+const previewBase = (process.env.PUBLIC_WEB_URL || getServerURL()).replace(/\/$/, '')
+const previewSecret = process.env.PREVIEW_SECRET
+
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
     livePreview: {
-      url: ({ data }) =>
-        `${process.env.PUBLIC_WEB_URL || getServerURL()}/${data?.slug === 'home' ? '' : data?.slug ?? ''}`,
+      url: ({ data }) => {
+        const params = new URLSearchParams({
+          type: 'page',
+          slug: data?.slug === 'home' ? 'home' : (data?.slug ?? ''),
+        })
+        if (previewSecret) params.set('secret', previewSecret)
+        return `${previewBase}/preview?${params.toString()}`
+      },
     },
   },
   access: {

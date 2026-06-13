@@ -1,4 +1,4 @@
-import type { Page } from '@/lib/types'
+import type { FormDefinition, Page } from '@/lib/types'
 
 /** Local page content (vibecode phase). Mirrors the Payload `pages` collection. */
 
@@ -135,4 +135,43 @@ export const about: Page = {
   ],
 }
 
-export const localPages: Page[] = [home, about]
+const contactForm: FormDefinition = {
+  id: 'local-contact-form',
+  title: 'Contact',
+  submitButtonLabel: 'Send message',
+  confirmationType: 'message',
+  confirmationMessageHtml: '<p>Thanks. We will be in touch within two business days.</p>',
+  fields: [
+    { blockType: 'text', name: 'name', label: 'Name', required: true, width: 50 },
+    { blockType: 'email', name: 'email', label: 'Email', required: true, width: 50 },
+    { blockType: 'textarea', name: 'message', label: 'What are you building?', required: true, width: 100 },
+  ],
+}
+
+export const contact: Page = {
+  slug: 'contact',
+  title: 'Contact',
+  seo: { description: 'Tell us about your project. We reply to every serious enquiry within two business days.' },
+  blocks: [
+    {
+      blockType: 'hero',
+      eyebrow: 'Start a project',
+      heading: 'Tell us what you are building.',
+      subheading:
+        'Share the product, the constraint, and where things feel stuck. We reply to every serious enquiry within two business days.',
+    },
+    {
+      blockType: 'richText',
+      width: 'narrow',
+      html: '<p>Prefer email? Reach us directly at <a href="mailto:hello@northvale.studio">hello@northvale.studio</a>.</p>',
+    },
+    {
+      blockType: 'formBlock',
+      heading: 'Project details',
+      intro: 'A short brief is enough. We can figure out the rest together.',
+      form: contactForm,
+    },
+  ],
+}
+
+export const localPages: Page[] = [home, about, contact]

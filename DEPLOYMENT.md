@@ -20,7 +20,7 @@ Two Vercel projects from one repo: `cms/` and `web/`. CMS on a subdomain
 - **Install command**: `pnpm install` · **Build**: `pnpm build` (auto-detected)
 - Env vars (from `cms/.env.example`): `DATABASE_URL`, `PAYLOAD_SECRET`,
   `NEXT_PUBLIC_SERVER_URL` (= the CMS public URL), `PUBLIC_WEB_URL`,
-  `PAYLOAD_ALLOWED_ORIGINS` (your web domain), `S3_*`, `RESEND_API_KEY`,
+  `PAYLOAD_ALLOWED_ORIGINS` (your web domain), `PREVIEW_SECRET`, `S3_*`, `RESEND_API_KEY`,
   `DEPLOY_HOOK_URL` (see step 4).
 - `cms/vercel.json` already raises the Payload API route timeout to 60s.
 
@@ -41,10 +41,10 @@ password, and enable 2FA (Account → set up authenticator or email code).
 
 - **Root directory**: `web`
 - Env vars (from `web/.env.example`): `PUBLIC_SITE_URL` (web public URL),
-  `PUBLIC_CMS_URL` (= CMS public URL), `PUBLIC_CONTACT_FORM_ID` (from seed output),
-  optionally `PAYLOAD_API_KEY` (for live preview) and analytics IDs.
-- The Astro Vercel adapter handles the build; the `/preview` route deploys as a
-  serverless function, everything else is static.
+  `PUBLIC_CMS_URL` (= CMS public URL), `PAYLOAD_API_KEY` (for draft preview),
+  `PREVIEW_SECRET`, and optionally analytics IDs.
+- The Astro Vercel adapter handles the build; public routes render on demand so published CMS
+  edits show immediately without a web redeploy.
 
 ### Media serving (optional rewrite)
 
@@ -57,14 +57,14 @@ web domain instead (avoids cross-origin, hides the bucket), add a `web/vercel.js
 
 and set the CMS `S3_PUBLIC_URL` to `https://www.example.com/media` so generated URLs match.
 
-## 4. Rebuild-on-publish
+## 4. Optional rebuild hook
 
 1. In the **web** Vercel project: Settings → Git → **Deploy Hooks** → create one for
    the production branch. Copy the URL.
 2. Set it as `DEPLOY_HOOK_URL` in the **CMS** project env.
 
-Now publishing a page/post or editing a global in the CMS pings the hook and the
-static site rebuilds with fresh content.
+The live website no longer depends on this hook for fresh published content. Keep it if you want
+an extra rebuild for search indexes, static assets, or future cached pages.
 
 ## 5. Post-deploy checks
 

@@ -4,11 +4,6 @@ import BlockRenderer from '@/components/blocks/BlockRenderer.astro'
 import { legalPages } from '@/lib/content/legal'
 import { getPage } from '@/lib/data'
 
-// Static paths from the known legal slugs; content resolved from CMS-or-local.
-export function getStaticPaths() {
-  return legalPages.map((p) => ({ params: { slug: p.slug } }))
-}
-
 const { slug } = Astro.params
 const page = (await getPage(slug!)) ?? legalPages.find((p) => p.slug === slug)
 if (!page) return Astro.redirect('/404')

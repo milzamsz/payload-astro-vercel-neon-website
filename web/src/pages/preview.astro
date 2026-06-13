@@ -10,6 +10,12 @@ import { getPage, getPost } from '@/lib/data'
 
 const type = Astro.url.searchParams.get('type') ?? 'page'
 const slug = Astro.url.searchParams.get('slug') ?? 'home'
+const secret = Astro.url.searchParams.get('secret') ?? ''
+const expectedSecret = import.meta.env.PREVIEW_SECRET || ''
+
+if (expectedSecret && secret !== expectedSecret) {
+  return new Response('Unauthorized preview request.', { status: 401 })
+}
 
 const page = type === 'page' ? await getPage(slug, { draft: true }) : null
 const post = type === 'post' ? await getPost(slug, { draft: true }) : null

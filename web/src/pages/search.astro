@@ -1,0 +1,80 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { getSearchResults, getSite } from '@/lib/data'
+import { breadcrumbSchema } from '@/lib/seo'
+
+const site = await getSite()
+const query = Astro.url.searchParams.get('q') ?? ''
+const results = await getSearchResults(query)
+const fmt = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''
+---
+
+<Layout
+  title="Search"
+  description="Search published writing from the CMS."
+  jsonLd={[
+    breadcrumbSchema(
+      [
+        { name: 'Home', path: '/' },
+        { name: 'Search', path: '/search' },
+      ],
+      site,
+    ),
+  ]}
+>
+  <section class="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+    <h1 class="text-4xl font-semibold tracking-tighter md:text-5xl">Search</h1>
+    <form action="/search" method="get" class="mt-8 flex flex-col gap-3 sm:flex-row">
+      <input
+        type="search"
+        name="q"
+        value={query}
+        placeholder="Search writing"
+        class="min-w-0 flex-1 rounded-[var(--radius-btn)] border px-4 py-3 text-sm outline-none focus:border-[var(--color-accent)]"
+        style="border-color: var(--border); background-color: var(--bg);"
+      />
+      <button
+        type="submit"
+        class="inline-flex items-center justify-center rounded-[var(--radius-btn)] px-5 py-3 text-sm font-medium"
+        style="background-color: var(--color-accent); color: var(--color-accent-fg);"
+      >
+        Search
+      </button>
+    </form>
+
+    {
+      query && (
+        <div class="mt-10">
+          <p class="text-sm" style="color: var(--fg-muted);">
+            {results.length} result{results.length === 1 ? '' : 's'} for "{query}"
+          </p>
+        </div>
+      )
+    }
+
+    <div class="mt-8 grid gap-6">
+      {
+        results.map((result) => (
+          <article class="rounded-[var(--radius-card)] border p-5" style="border-color: var(--border);">
+            <a href={result.href} class="text-xl font-semibold tracking-tight transition hover:opacity-75">
+              {result.title}
+            </a>
+            {(result.category || result.publishedAt) && (
+              <p class="mt-2 text-xs uppercase tracking-[0.18em]" style="color: var(--color-accent);">
+                {[result.category, fmt(result.publishedAt)].filter(Boolean).join(' · ')}
+              </p>
+            )}
+            {result.excerpt && (
+              <p class="mt-3 text-sm leading-relaxed" style="color: var(--fg-muted);">
+                {result.excerpt}
+              </p>
+            )}
+          </article>
+        ))
+      }
+    </div>
+
+    {query && results.length === 0 && <p class="mt-8 text-sm" style="color: var(--fg-muted);">No published results yet.</p>}
+  </section>
+</Layout>

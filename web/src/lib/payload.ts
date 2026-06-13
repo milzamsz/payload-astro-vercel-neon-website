@@ -46,3 +46,12 @@ export async function findAll<T>(collection: string, query = ''): Promise<T[]> {
   const res = await api<ListResponse<T>>(`/api/${collection}?depth=2&limit=100${query ? `&${query}` : ''}`)
   return res?.docs ?? []
 }
+
+export async function findOne<T>(collection: string, query = '', opts: FetchOpts = {}): Promise<T | null> {
+  const res = await api<ListResponse<T>>(`/api/${collection}?depth=2&limit=1${query ? `&${query}` : ''}`, opts)
+  return res?.docs?.[0] ?? null
+}
+
+export async function fetchJSON<T>(path: string, opts: FetchOpts = {}): Promise<T | null> {
+  return api<T>(path, opts)
+}

@@ -6,7 +6,7 @@ Astro frontend first against local content, then sync it to Payload CMS.
 ```
 .
 ├─ cms/   Payload CMS on Next.js — admin UI + REST/GraphQL API (Neon Postgres)
-├─ web/   Astro static site — consumes the CMS via REST, builds to Vercel
+├─ web/   Astro SSR site — consumes the CMS via REST on Vercel
 ├─ PLAN.md · TASK.md · AGENTS.md
 ```
 
@@ -14,7 +14,7 @@ Astro frontend first against local content, then sync it to Payload CMS.
 
 - **Payload 3.85** on **Next.js 16** — headless CMS + admin
 - **Neon** Postgres (`@payloadcms/db-postgres`)
-- **Astro 6** + **Tailwind 4** — static frontend, `@astrojs/vercel` adapter
+- **Astro 6** + **Tailwind 4** — SSR frontend on `@astrojs/vercel`
 - **Resend** transactional email · **S3-compatible** media storage
 - Two separate **Vercel** projects
 
@@ -26,7 +26,7 @@ Astro frontend first against local content, then sync it to Payload CMS.
 - **Analytics**: GTM + GA4 (consent-gated) + Umami (cookieless), configurable in CMS or env
 - **2FA**: authenticator app (TOTP) + email code + backup codes, full admin UI
 - **Contact**: `plugin-form-builder` + Resend notifications
-- Redirects collection, full-text search, draft/version live preview, dark mode
+- Redirects collection, live search, draft/version live preview, dark mode
 
 ## Quick start
 
@@ -45,7 +45,10 @@ pnpm dev                              # cms → http://localhost:3000/admin · w
 ```
 
 Develop **frontend-first**: leave `PUBLIC_CMS_URL` blank and the Astro site renders
-from `web/src/lib/content/*`. Set it to pull published content from the CMS.
+from `web/src/lib/content/*`. Set it to pull published content from the CMS on each request.
+
+Published edits now appear on the live website immediately after publish. Drafts stay private and
+only render through `/preview` with a shared `PREVIEW_SECRET`.
 
 ## Workflow
 

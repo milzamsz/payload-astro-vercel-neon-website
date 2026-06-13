@@ -134,6 +134,21 @@ export const LogoCloudBlock: Block = {
   ],
 }
 
+export const FormBlockConfig: Block = {
+  slug: 'formBlock',
+  interfaceName: 'FormBlock',
+  fields: [
+    { name: 'heading', type: 'text' },
+    { name: 'intro', type: 'textarea' },
+    {
+      name: 'form',
+      type: 'relationship',
+      relationTo: 'forms',
+      required: true,
+    },
+  ],
+}
+
 export const layoutBlocks: Block[] = [
   HeroBlock,
   RichTextBlock,
@@ -143,4 +158,5 @@ export const layoutBlocks: Block[] = [
   StatsBlock,
   FAQBlock,
   LogoCloudBlock,
+  FormBlockConfig,
 ]

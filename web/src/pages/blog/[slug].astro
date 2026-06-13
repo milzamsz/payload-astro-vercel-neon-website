@@ -1,15 +1,13 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { getAllPosts, getSite } from '@/lib/data'
+import { getPost, getSite } from '@/lib/data'
 import { articleSchema, breadcrumbSchema } from '@/lib/seo'
 
-export async function getStaticPaths() {
-  const posts = await getAllPosts()
-  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }))
-}
-
-const { post } = Astro.props
 const site = await getSite()
+const { slug } = Astro.params
+const post = slug ? await getPost(slug) : null
+if (!post) return Astro.redirect('/404')
+
 const fmt = (iso: string) =>
   new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 ---

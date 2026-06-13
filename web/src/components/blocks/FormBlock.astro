@@ -1,0 +1,207 @@
+---
+import type { FormBlock as FormBlockType, FormField } from '@/lib/types'
+
+interface Props {
+  block: FormBlockType
+}
+
+const { block } = Astro.props
+const cmsUrl = (import.meta.env.PUBLIC_CMS_URL || '').replace(/\/$/, '')
+const formId = block.form.id
+const submitLabel = block.form.submitButtonLabel || 'Submit'
+
+const widthClass = (field: FormField) => {
+  const width = 'width' in field ? (field.width ?? 100) : 100
+  if (width <= 50) return 'md:col-span-1'
+  return 'md:col-span-2'
+}
+---
+
+<section class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+  <div class="grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
+    <div data-reveal>
+      {block.heading && <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">{block.heading}</h2>}
+      {block.intro && (
+        <p class="mt-4 max-w-md text-base leading-relaxed" style="color: var(--fg-muted);">
+          {block.intro}
+        </p>
+      )}
+    </div>
+
+    <form
+      class="grid gap-5 md:grid-cols-2"
+      data-reveal
+      data-cms-form
+      data-cms={cmsUrl}
+      data-form={formId}
+      data-confirmation-type={block.form.confirmationType || 'message'}
+      data-redirect={block.form.redirectUrl || ''}
+      data-success-label={submitLabel}
+    >
+      {
+        block.form.fields.map((field) => {
+          if (field.blockType === 'message') {
+            return (
+              <div class="prose-cms md:col-span-2" set:html={field.html || ''} />
+            )
+          }
+
+          if (field.blockType === 'textarea') {
+            return (
+              <div class:list={['grid gap-2', widthClass(field)]}>
+                <label for={field.name} class="text-sm font-medium">{field.label || field.name}</label>
+                <textarea
+                  id={field.name}
+                  name={field.name}
+                  rows="5"
+                  required={field.required}
+                  class="resize-y rounded-[var(--radius-btn)] border px-3.5 py-2.5 text-sm outline-none focus:border-[var(--color-accent)]"
+                  style="border-color: var(--border); background-color: var(--bg);"
+                >{field.defaultValue || ''}</textarea>
+              </div>
+            )
+          }
+
+          if (field.blockType === 'select') {
+            return (
+              <div class:list={['grid gap-2', widthClass(field)]}>
+                <label for={field.name} class="text-sm font-medium">{field.label || field.name}</label>
+                <select
+                  id={field.name}
+                  name={field.name}
+                  required={field.required}
+                  class="rounded-[var(--radius-btn)] border px-3.5 py-2.5 text-sm outline-none focus:border-[var(--color-accent)]"
+                  style="border-color: var(--border); background-color: var(--bg);"
+                >
+                  {field.placeholder && <option value="">{field.placeholder}</option>}
+                  {(field.options || []).map((option) => (
+                    <option value={option.value} selected={option.value === field.defaultValue}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )
+          }
+
+          if (field.blockType === 'checkbox') {
+            return (
+              <label class:list={['flex items-start gap-3 rounded-[var(--radius-btn)] border p-4 text-sm', widthClass(field)]} style="border-color: var(--border);">
+                <input
+                  type="checkbox"
+                  name={field.name}
+                  required={field.required}
+                  checked={field.defaultValue}
+                  class="mt-0.5"
+                />
+                <span>{field.label || field.name}</span>
+              </label>
+            )
+          }
+
+          return (
+            <div class:list={['grid gap-2', widthClass(field)]}>
+              <label for={field.name} class="text-sm font-medium">{field.label || field.name}</label>
+              <input
+                id={field.name}
+                name={field.name}
+                type={field.blockType}
+                value={field.defaultValue || ''}
+                required={field.required}
+                class="rounded-[var(--radius-btn)] border px-3.5 py-2.5 text-sm outline-none focus:border-[var(--color-accent)]"
+                style="border-color: var(--border); background-color: var(--bg);"
+              />
+            </div>
+          )
+        })
+      }
+
+      <div class="md:col-span-2">
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center rounded-[var(--radius-btn)] px-5 py-2.5 text-sm font-medium transition active:scale-[0.98] disabled:opacity-60"
+          style="background-color: var(--color-accent); color: var(--color-accent-fg);"
+        >
+          <span data-label>{submitLabel}</span>
+        </button>
+
+        <p class="mt-4 hidden text-sm" data-status role="status" aria-live="polite"></p>
+        {
+          block.form.confirmationType === 'message' &&
+            block.form.confirmationMessageHtml && (
+              <div class="prose-cms mt-4 hidden text-sm" data-success-message set:html={block.form.confirmationMessageHtml} />
+            )
+        }
+      </div>
+    </form>
+  </div>
+</section>
+
+<script is:inline>
+  ;(function () {
+    var forms = document.querySelectorAll('[data-cms-form]')
+    forms.forEach(function (form) {
+      if (form.dataset.bound === 'true') return
+      form.dataset.bound = 'true'
+      var status = form.querySelector('[data-status]')
+      var btn = form.querySelector('button[type=submit]')
+      var label = form.querySelector('[data-label]')
+      var successMessage = form.querySelector('[data-success-message]')
+      var cms = form.getAttribute('data-cms')
+      var formId = form.getAttribute('data-form')
+      var confirmationType = form.getAttribute('data-confirmation-type')
+      var redirectTo = form.getAttribute('data-redirect')
+      var baseLabel = form.getAttribute('data-success-label') || 'Submit'
+
+      function setStatus(msg, ok) {
+        if (!status) return
+        status.textContent = msg
+        status.classList.remove('hidden')
+        status.style.color = ok ? 'var(--color-accent)' : 'oklch(0.6 0.2 25)'
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault()
+        if (!cms || !formId || formId === 'local-contact-form') {
+          setStatus('Form not yet connected. Set PUBLIC_CMS_URL and add a CMS form to this page.', false)
+          return
+        }
+
+        var data = new FormData(form)
+        var submissionData = []
+        data.forEach(function (value, field) {
+          if (typeof value === 'string' && value.length === 0) return
+          submissionData.push({ field: field, value: String(value) })
+        })
+
+        btn.disabled = true
+        label.textContent = 'Sending...'
+
+        try {
+          var res = await fetch(cms + '/api/form-submissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ form: formId, submissionData: submissionData }),
+          })
+
+          if (!res.ok) throw new Error('Request failed')
+
+          form.reset()
+          label.textContent = 'Sent'
+
+          if (confirmationType === 'redirect' && redirectTo) {
+            window.location.assign(redirectTo)
+            return
+          }
+
+          if (successMessage) successMessage.classList.remove('hidden')
+          setStatus('Thanks. We will be in touch within two business days.', true)
+        } catch (err) {
+          btn.disabled = false
+          label.textContent = baseLabel
+          setStatus('Something went wrong. Email us directly and we will sort it.', false)
+        }
+      })
+    })
+  })()
+</script>

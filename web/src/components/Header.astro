@@ -31,6 +31,15 @@ const path = Astro.url.pathname
     </div>
 
     <div class="flex items-center gap-2">
+      <a
+        href="/search"
+        aria-label="Search"
+        class="grid h-9 w-9 place-items-center rounded-[var(--radius-btn)] border transition active:scale-95"
+        style="border-color: var(--border);"
+      >
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </a>
+
       <button
         id="theme-toggle"
         type="button"

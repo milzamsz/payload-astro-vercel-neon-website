@@ -18,6 +18,56 @@ export type CTA = {
   variant?: 'primary' | 'secondary' | 'ghost'
 }
 
+export type FormField =
+  | {
+      blockType: 'text' | 'email'
+      name: string
+      label?: string
+      required?: boolean
+      width?: number
+      defaultValue?: string
+    }
+  | {
+      blockType: 'textarea'
+      name: string
+      label?: string
+      required?: boolean
+      width?: number
+      defaultValue?: string
+    }
+  | {
+      blockType: 'select'
+      name: string
+      label?: string
+      required?: boolean
+      width?: number
+      defaultValue?: string
+      placeholder?: string
+      options?: { label: string; value: string }[]
+    }
+  | {
+      blockType: 'checkbox'
+      name: string
+      label?: string
+      required?: boolean
+      width?: number
+      defaultValue?: boolean
+    }
+  | {
+      blockType: 'message'
+      html?: string
+    }
+
+export type FormDefinition = {
+  id: string
+  title: string
+  submitButtonLabel?: string
+  confirmationType?: 'message' | 'redirect'
+  confirmationMessageHtml?: string
+  redirectUrl?: string
+  fields: FormField[]
+}
+
 // ---- Blocks (mirror cms/src/blocks) ----
 
 export type HeroBlock = {
@@ -76,6 +126,13 @@ export type LogoCloudBlock = {
   logos: { name: string; src: string }[]
 }
 
+export type FormBlock = {
+  blockType: 'formBlock'
+  heading?: string
+  intro?: string
+  form: FormDefinition
+}
+
 export type Block =
   | HeroBlock
   | RichTextBlock
@@ -85,6 +142,7 @@ export type Block =
   | StatsBlock
   | FAQBlock
   | LogoCloudBlock
+  | FormBlock
 
 // ---- Documents ----
 
@@ -135,4 +193,13 @@ export type SiteSettings = {
     logo: string
     sameAs: string[]
   }
+}
+
+export type SearchResult = {
+  title: string
+  href: string
+  excerpt?: string
+  category?: string
+  publishedAt?: string
+  priority?: number
 }

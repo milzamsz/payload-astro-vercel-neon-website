@@ -8,6 +8,7 @@ import CTA from './CTA.astro'
 import Stats from './Stats.astro'
 import FAQ from './FAQ.astro'
 import LogoCloud from './LogoCloud.astro'
+import FormBlock from './FormBlock.astro'
 
 interface Props {
   blocks: Block[]
@@ -34,6 +35,8 @@ const { blocks } = Astro.props
         return <FAQ block={block} />
       case 'logoCloud':
         return <LogoCloud block={block} />
+      case 'formBlock':
+        return <FormBlock block={block} />
       default:
         return null
     }
