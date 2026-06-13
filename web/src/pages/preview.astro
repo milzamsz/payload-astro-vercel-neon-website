@@ -1,0 +1,29 @@
+---
+// SSR live-preview route. Renders draft content from the CMS on every request.
+// Payload admin Live Preview points here (configure preview URL in cms collections).
+// Usage: /preview?type=page&slug=home  or  /preview?type=post&slug=my-post
+export const prerender = false
+
+import Layout from '@/layouts/Layout.astro'
+import BlockRenderer from '@/components/blocks/BlockRenderer.astro'
+import { getPage, getPost } from '@/lib/data'
+
+const type = Astro.url.searchParams.get('type') ?? 'page'
+const slug = Astro.url.searchParams.get('slug') ?? 'home'
+
+const page = type === 'page' ? await getPage(slug, { draft: true }) : null
+const post = type === 'post' ? await getPost(slug, { draft: true }) : null
+---
+
+<Layout title={page?.title ?? post?.title ?? 'Preview'} noindex={true}>
+  {page && <BlockRenderer blocks={page.blocks} />}
+  {
+    post && (
+      <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+        <h1 class="text-4xl font-semibold tracking-tighter md:text-5xl">{post.title}</h1>
+        <div class="prose-cms mt-8" set:html={post.bodyHtml} />
+      </article>
+    )
+  }
+  {!page && !post && <p class="mx-auto max-w-3xl px-4 py-16">Nothing to preview.</p>}
+</Layout>

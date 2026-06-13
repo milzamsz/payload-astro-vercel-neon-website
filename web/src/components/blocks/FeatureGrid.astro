@@ -1,0 +1,43 @@
+---
+import type { FeatureGridBlock } from '@/lib/types'
+interface Props {
+  block: FeatureGridBlock
+}
+const { block } = Astro.props
+---
+
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6" data-reveal>
+  {
+    (block.heading || block.intro) && (
+      <div class="max-w-2xl">
+        {block.heading && (
+          <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">{block.heading}</h2>
+        )}
+        {block.intro && (
+          <p class="mt-3 text-lg" style="color: var(--fg-muted);">
+            {block.intro}
+          </p>
+        )}
+      </div>
+    )
+  }
+
+  <div class="mt-10 grid gap-px overflow-hidden rounded-[var(--radius-card)] border md:grid-cols-3" style="border-color: var(--border); background-color: var(--border);">
+    {
+      block.items.map((item, i) => (
+        <div class="p-7" style="background-color: var(--bg);">
+          <span
+            class="font-mono text-sm"
+            style="color: var(--color-accent);"
+          >
+            {String(i + 1).padStart(2, '0')}
+          </span>
+          <h3 class="mt-4 text-lg font-semibold">{item.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed" style="color: var(--fg-muted);">
+            {item.body}
+          </p>
+        </div>
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,29 @@
+---
+import type { CTA } from '@/lib/types'
+interface Props extends Partial<CTA> {
+  href: string
+  variant?: 'primary' | 'secondary' | 'ghost'
+}
+const { href, variant = 'primary' } = Astro.props
+const base =
+  'inline-flex items-center justify-center rounded-[var(--radius-btn)] px-5 py-2.5 text-sm font-medium whitespace-nowrap transition duration-200 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2'
+const styles: Record<string, string> = {
+  primary: '',
+  secondary: 'border',
+  ghost: '',
+}
+---
+
+<a
+  href={href}
+  class={`${base} ${styles[variant]}`}
+  style={
+    variant === 'primary'
+      ? 'background-color: var(--color-accent); color: var(--color-accent-fg);'
+      : variant === 'secondary'
+        ? 'border-color: var(--border); color: var(--fg);'
+        : 'color: var(--color-accent);'
+  }
+>
+  <slot />
+</a>

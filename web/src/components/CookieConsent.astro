@@ -1,0 +1,72 @@
+---
+/**
+ * Cookie consent banner. Only renders meaningfully when cookie-based analytics
+ * (GTM/GA4) are configured. Stores choice in localStorage and fires
+ * `consent:granted` so Analytics.astro can inject the cookie-based scripts.
+ */
+interface Props {
+  show?: boolean
+  privacyHref?: string
+}
+const { show = false, privacyHref = '/legal/privacy' } = Astro.props
+---
+
+{
+  show && (
+    <div
+      id="cookie-consent"
+      class="fixed inset-x-4 bottom-4 z-50 mx-auto hidden max-w-xl rounded-2xl border p-5 shadow-lg backdrop-blur"
+      style="background-color: color-mix(in oklch, var(--bg-elevated) 92%, transparent); border-color: var(--border);"
+      role="dialog"
+      aria-live="polite"
+      aria-label="Cookie consent"
+    >
+      <p class="text-sm" style="color: var(--fg-muted);">
+        We use cookieless analytics by default. With your consent we also load
+        Google tools to understand traffic. See our{' '}
+        <a href={privacyHref} class="underline" style="color: var(--color-accent);">
+          privacy policy
+        </a>
+        .
+      </p>
+      <div class="mt-4 flex gap-3">
+        <button
+          data-consent="granted"
+          class="rounded-[var(--radius-btn)] px-4 py-2 text-sm font-medium transition active:scale-[0.98]"
+          style="background-color: var(--color-accent); color: var(--color-accent-fg);"
+        >
+          Accept
+        </button>
+        <button
+          data-consent="denied"
+          class="rounded-[var(--radius-btn)] border px-4 py-2 text-sm font-medium transition active:scale-[0.98]"
+          style="border-color: var(--border);"
+        >
+          Decline
+        </button>
+      </div>
+    </div>
+  )
+}
+
+{
+  show && (
+    <script is:inline>
+      {`
+      (function () {
+        var el = document.getElementById('cookie-consent');
+        if (!el) return;
+        if (!localStorage.getItem('consent')) el.classList.remove('hidden');
+        el.querySelectorAll('[data-consent]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var choice = btn.getAttribute('data-consent');
+            localStorage.setItem('consent', choice);
+            el.classList.add('hidden');
+            if (choice === 'granted') window.dispatchEvent(new Event('consent:granted'));
+          });
+        });
+      })();
+      `}
+    </script>
+  )
+}

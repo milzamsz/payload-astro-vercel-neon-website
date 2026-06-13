@@ -1,0 +1,59 @@
+---
+import type { HeroBlock } from '@/lib/types'
+import Button from '@/components/Button.astro'
+interface Props {
+  block: HeroBlock
+}
+const { block } = Astro.props
+---
+
+<section class="mx-auto max-w-6xl px-4 pt-16 pb-10 sm:px-6 md:pt-24">
+  <div class="grid items-center gap-10 md:grid-cols-2 md:gap-14">
+    <div data-reveal>
+      {
+        block.eyebrow && (
+          <p class="text-xs font-medium uppercase tracking-[0.18em]" style="color: var(--color-accent);">
+            {block.eyebrow}
+          </p>
+        )
+      }
+      <h1 class="mt-4 text-4xl font-semibold leading-[1.05] tracking-tighter md:text-6xl">
+        {block.heading}
+      </h1>
+      {
+        block.subheading && (
+          <p class="mt-5 max-w-[48ch] text-lg leading-relaxed" style="color: var(--fg-muted);">
+            {block.subheading}
+          </p>
+        )
+      }
+      {
+        block.ctas && block.ctas.length > 0 && (
+          <div class="mt-8 flex flex-wrap gap-3">
+            {block.ctas.map((cta) => (
+              <Button href={cta.href} variant={cta.variant}>
+                {cta.label}
+              </Button>
+            ))}
+          </div>
+        )
+      }
+    </div>
+
+    {
+      block.image && (
+        <div data-reveal class="relative">
+          <img
+            src={block.image.url}
+            alt={block.image.alt}
+            width={block.image.width}
+            height={block.image.height}
+            loading="eager"
+            fetchpriority="high"
+            class="aspect-[4/3] w-full rounded-[var(--radius-card)] object-cover"
+          />
+        </div>
+      )
+    }
+  </div>
+</section>

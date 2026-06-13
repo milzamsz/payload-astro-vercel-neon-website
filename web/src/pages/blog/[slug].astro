@@ -1,0 +1,65 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { getAllPosts, getSite } from '@/lib/data'
+import { articleSchema, breadcrumbSchema } from '@/lib/seo'
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts()
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }))
+}
+
+const { post } = Astro.props
+const site = await getSite()
+const fmt = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+---
+
+<Layout
+  title={post.title}
+  description={post.excerpt}
+  image={post.coverImage}
+  jsonLd={[
+    articleSchema(post, site),
+    breadcrumbSchema(
+      [
+        { name: 'Home', path: '/' },
+        { name: 'Writing', path: '/blog' },
+        { name: post.title, path: `/blog/${post.slug}` },
+      ],
+      site,
+    ),
+  ]}
+>
+  <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <a href="/blog" class="text-sm" style="color: var(--color-accent);">&larr; All writing</a>
+
+    <header class="mt-6" data-reveal>
+      {
+        post.category && (
+          <span class="text-xs font-medium uppercase tracking-[0.18em]" style="color: var(--color-accent);">
+            {post.category}
+          </span>
+        )
+      }
+      <h1 class="mt-3 text-4xl font-semibold leading-tight tracking-tighter md:text-5xl">
+        {post.title}
+      </h1>
+      <p class="mt-5 text-sm" style="color: var(--fg-muted);">
+        {post.author.name}{post.author.role ? `, ${post.author.role}` : ''} · {fmt(post.publishedAt)}
+      </p>
+    </header>
+
+    {
+      post.coverImage && (
+        <img
+          src={post.coverImage.url}
+          alt={post.coverImage.alt}
+          class="mt-8 aspect-[16/9] w-full rounded-[var(--radius-card)] object-cover"
+          loading="eager"
+        />
+      )
+    }
+
+    <div class="prose-cms mt-10" set:html={post.bodyHtml} />
+  </article>
+</Layout>

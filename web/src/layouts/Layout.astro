@@ -1,0 +1,131 @@
+---
+import '@/styles/global.css'
+import Header from '@/components/Header.astro'
+import Footer from '@/components/Footer.astro'
+import Analytics from '@/components/Analytics.astro'
+import CookieConsent from '@/components/CookieConsent.astro'
+import { getSite } from '@/lib/data'
+import { resolveTitle, absoluteUrl } from '@/lib/seo'
+import type { Media } from '@/lib/types'
+
+interface Props {
+  title?: string
+  description?: string
+  image?: Media
+  noindex?: boolean
+  jsonLd?: Record<string, unknown>[]
+}
+
+const { title, description, image, noindex = false, jsonLd = [] } = Astro.props
+const site = await getSite()
+
+const pageTitle = resolveTitle(title, site)
+const pageDescription = description || site.description
+const canonical = new URL(Astro.url.pathname, site.url).toString()
+const ogImage = image ? image.url : absoluteUrl('/og-default.svg', site)
+const usesCookieAnalytics = Boolean(site.gtmId || site.ga4Id)
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title={site.siteName} href="/rss.xml" />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {
+      jsonLd.map((schema) => (
+        <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+      ))
+    }
+
+    <!-- Theme: set before paint to avoid flash -->
+    <script is:inline>
+      (function () {
+        var t = localStorage.getItem('theme')
+        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+        if (dark) document.documentElement.classList.add('dark')
+      })()
+    </script>
+
+    <Analytics
+      gtmId={site.gtmId}
+      ga4Id={site.ga4Id}
+      umamiSrc={site.umamiSrc}
+      umamiWebsiteId={site.umamiWebsiteId}
+    />
+  </head>
+
+  <body class="flex min-h-[100dvh] flex-col">
+    {
+      site.gtmId && (
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${site.gtmId}`}
+            height="0"
+            width="0"
+            style="display:none;visibility:hidden"
+          />
+        </noscript>
+      )
+    }
+
+    <Header site={site} />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer site={site} />
+
+    <CookieConsent show={usesCookieAnalytics} />
+
+    <!-- Scroll reveal -->
+    <script is:inline>
+      ;(function () {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        var els = document.querySelectorAll('[data-reveal]')
+        if (!('IntersectionObserver' in window) || !els.length) {
+          els.forEach(function (el) {
+            el.classList.add('is-visible')
+          })
+          return
+        }
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-visible')
+                io.unobserve(e.target)
+              }
+            })
+          },
+          { threshold: 0.15 },
+        )
+        els.forEach(function (el) {
+          io.observe(el)
+        })
+      })()
+    </script>
+  </body>
+</html>

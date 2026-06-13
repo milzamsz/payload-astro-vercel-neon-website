@@ -1,0 +1,25 @@
+---
+import type { StatsBlock } from '@/lib/types'
+interface Props {
+  block: StatsBlock
+}
+const { block } = Astro.props
+// Static literals so Tailwind generates the utilities at build time.
+const cols = block.items.length >= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+---
+
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6" data-reveal>
+  {block.heading && <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">{block.heading}</h2>}
+  <dl class={`mt-10 grid grid-cols-1 gap-8 ${cols}`}>
+    {
+      block.items.map((stat) => (
+        <div class="border-t pt-5" style="border-color: var(--border);">
+          <dt class="font-mono text-5xl font-semibold tracking-tighter">{stat.value}</dt>
+          <dd class="mt-2 text-sm" style="color: var(--fg-muted);">
+            {stat.label}
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>

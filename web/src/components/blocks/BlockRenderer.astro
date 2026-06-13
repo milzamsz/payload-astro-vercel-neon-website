@@ -1,0 +1,41 @@
+---
+import type { Block } from '@/lib/types'
+import Hero from './Hero.astro'
+import RichText from './RichText.astro'
+import FeatureGrid from './FeatureGrid.astro'
+import MediaBlock from './MediaBlock.astro'
+import CTA from './CTA.astro'
+import Stats from './Stats.astro'
+import FAQ from './FAQ.astro'
+import LogoCloud from './LogoCloud.astro'
+
+interface Props {
+  blocks: Block[]
+}
+const { blocks } = Astro.props
+---
+
+{
+  blocks.map((block) => {
+    switch (block.blockType) {
+      case 'hero':
+        return <Hero block={block} />
+      case 'richText':
+        return <RichText block={block} />
+      case 'featureGrid':
+        return <FeatureGrid block={block} />
+      case 'mediaBlock':
+        return <MediaBlock block={block} />
+      case 'cta':
+        return <CTA block={block} />
+      case 'stats':
+        return <Stats block={block} />
+      case 'faq':
+        return <FAQ block={block} />
+      case 'logoCloud':
+        return <LogoCloud block={block} />
+      default:
+        return null
+    }
+  })
+}

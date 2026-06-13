@@ -1,0 +1,26 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import BlockRenderer from '@/components/blocks/BlockRenderer.astro'
+import { getPage, getSite } from '@/lib/data'
+import { breadcrumbSchema } from '@/lib/seo'
+
+const site = await getSite()
+const page = await getPage('about')
+if (!page) return Astro.redirect('/404')
+---
+
+<Layout
+  title={page.title}
+  description={page.seo?.description}
+  jsonLd={[
+    breadcrumbSchema(
+      [
+        { name: 'Home', path: '/' },
+        { name: 'About', path: '/about' },
+      ],
+      site,
+    ),
+  ]}
+>
+  <BlockRenderer blocks={page.blocks} />
+</Layout>

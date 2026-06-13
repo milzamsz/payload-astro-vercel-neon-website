@@ -1,0 +1,62 @@
+---
+/**
+ * Analytics loader. Reads IDs from site settings (props).
+ * - Umami: cookieless, privacy-friendly → loaded unconditionally when configured.
+ * - GTM + GA4: cookie-based → loaded only after the visitor accepts via CookieConsent.
+ *   The consent banner dispatches `consent:granted`; this script listens and injects.
+ */
+interface Props {
+  gtmId?: string
+  ga4Id?: string
+  umamiSrc?: string
+  umamiWebsiteId?: string
+}
+const { gtmId = '', ga4Id = '', umamiSrc = '', umamiWebsiteId = '' } = Astro.props
+---
+
+{
+  umamiSrc && umamiWebsiteId && (
+    <script is:inline defer src={umamiSrc} data-website-id={umamiWebsiteId}></script>
+  )
+}
+
+{
+  (gtmId || ga4Id) && (
+    <script is:inline define:vars={{ gtmId, ga4Id }}>
+      {`
+      (function () {
+        function loadGtm() {
+          if (gtmId) {
+            (function (w, d, s, l, i) {
+              w[l] = w[l] || [];
+              w[l].push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+              var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+              j.async = true;
+              j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+              f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', gtmId);
+          }
+          if (ga4Id) {
+            var g = document.createElement('script');
+            g.async = true;
+            g.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+            document.head.appendChild(g);
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { window.dataLayer.push(arguments); }
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', ga4Id, { anonymize_ip: true });
+          }
+        }
+        if (localStorage.getItem('consent') === 'granted') {
+          loadGtm();
+        } else {
+          window.addEventListener('consent:granted', loadGtm, { once: true });
+        }
+      })();
+      `}
+    </script>
+  )
+}

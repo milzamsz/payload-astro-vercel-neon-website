@@ -1,0 +1,12 @@
+---
+import type { RichTextBlock } from '@/lib/types'
+interface Props {
+  block: RichTextBlock
+}
+const { block } = Astro.props
+const width = block.width === 'narrow' ? 'max-w-2xl' : 'max-w-4xl'
+---
+
+<section class={`mx-auto ${width} px-4 py-12 sm:px-6`} data-reveal>
+  <div class="prose-cms" set:html={block.html} />
+</section>

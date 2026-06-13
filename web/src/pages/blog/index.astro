@@ -1,0 +1,104 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { getAllPosts, getSite } from '@/lib/data'
+import { breadcrumbSchema } from '@/lib/seo'
+
+const site = await getSite()
+const posts = await getAllPosts()
+const sorted = [...posts].sort(
+  (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+)
+const [featured, ...rest] = sorted
+
+const fmt = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+---
+
+<Layout
+  title="Writing"
+  description="Notes on building software, design, and shipping."
+  jsonLd={[
+    breadcrumbSchema(
+      [
+        { name: 'Home', path: '/' },
+        { name: 'Writing', path: '/blog' },
+      ],
+      site,
+    ),
+  ]}
+>
+  <section class="mx-auto max-w-6xl px-4 pt-16 pb-8 sm:px-6">
+    <h1 class="text-4xl font-semibold tracking-tighter md:text-5xl">Writing</h1>
+    <p class="mt-3 max-w-xl text-lg" style="color: var(--fg-muted);">
+      Notes on building software, design practice, and what we learn shipping it.
+    </p>
+  </section>
+
+  {
+    featured && (
+      <section class="mx-auto max-w-6xl px-4 sm:px-6" data-reveal>
+        <a href={`/blog/${featured.slug}`} class="group grid gap-6 md:grid-cols-2 md:items-center">
+          {featured.coverImage && (
+            <img
+              src={featured.coverImage.url}
+              alt={featured.coverImage.alt}
+              class="aspect-[16/10] w-full rounded-[var(--radius-card)] object-cover"
+              loading="eager"
+            />
+          )}
+          <div>
+            {featured.category && (
+              <span class="text-xs font-medium uppercase tracking-[0.18em]" style="color: var(--color-accent);">
+                {featured.category}
+              </span>
+            )}
+            <h2 class="mt-3 text-3xl font-semibold tracking-tight transition group-hover:opacity-70">
+              {featured.title}
+            </h2>
+            <p class="mt-3 text-lg" style="color: var(--fg-muted);">
+              {featured.excerpt}
+            </p>
+            <p class="mt-4 text-sm" style="color: var(--fg-muted);">
+              {featured.author.name} · {fmt(featured.publishedAt)}
+            </p>
+          </div>
+        </a>
+      </section>
+    )
+  }
+
+  <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+    <div class="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        rest.map((post) => (
+          <article data-reveal>
+            <a href={`/blog/${post.slug}`} class="group block">
+              {post.coverImage && (
+                <img
+                  src={post.coverImage.url}
+                  alt={post.coverImage.alt}
+                  class="aspect-[16/10] w-full rounded-[var(--radius-card)] object-cover"
+                  loading="lazy"
+                />
+              )}
+              {post.category && (
+                <span class="mt-4 inline-block text-xs font-medium uppercase tracking-[0.18em]" style="color: var(--color-accent);">
+                  {post.category}
+                </span>
+              )}
+              <h3 class="mt-2 text-xl font-semibold tracking-tight transition group-hover:opacity-70">
+                {post.title}
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed" style="color: var(--fg-muted);">
+                {post.excerpt}
+              </p>
+              <p class="mt-3 text-xs" style="color: var(--fg-muted);">
+                {post.author.name} · {fmt(post.publishedAt)}
+              </p>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</Layout>

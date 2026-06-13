@@ -1,0 +1,26 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# env
+.env
+.env.*
+!.env.example
+
+# builds
+dist/
+.next/
+.astro/
+.vercel/
+build/
+
+# payload generated (commit these per AGENTS.md, but ignore local noise)
+cms/src/payload-types.ts.tmp
+
+# misc
+*.log
+.DS_Store
+Thumbs.db
+coverage/
+playwright-report/
+test-results/

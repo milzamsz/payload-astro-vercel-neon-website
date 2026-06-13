@@ -1,0 +1,23 @@
+{
+  "name": "payload-astro-vercel-neon-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vibe CMS template: Payload CMS + Astro + Vercel + Neon. Frontend-first workflow.",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "packageManager": "pnpm@11.0.9",
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:cms": "pnpm --filter cms dev",
+    "dev:web": "pnpm --filter web dev",
+    "build": "pnpm --filter cms build && pnpm --filter web build",
+    "build:cms": "pnpm --filter cms build",
+    "build:web": "pnpm --filter web build",
+    "seed": "pnpm --filter cms seed",
+    "migrate": "pnpm --filter cms migrate",
+    "migrate:create": "pnpm --filter cms migrate:create",
+    "generate:types": "pnpm --filter cms generate:types",
+    "lint": "pnpm -r lint"
+  }
+}

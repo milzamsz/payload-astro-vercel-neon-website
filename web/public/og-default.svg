@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#101418" />
+  <rect x="64" y="64" width="60" height="60" rx="13" fill="#2f5bd6" />
+  <path d="M79 109V79h5l13 13V79h5v30h-5L84 96v13h-5z" fill="#fff" />
+  <text x="64" y="330" font-family="Geist, system-ui, sans-serif" font-size="76" font-weight="600" fill="#f5f6f7" letter-spacing="-2">Northvale Studio</text>
+  <text x="64" y="400" font-family="Geist, system-ui, sans-serif" font-size="34" fill="#9aa3ad">Software that earns its place on the screen.</text>
+</svg>

@@ -1,0 +1,23 @@
+---
+import type { CTABlock } from '@/lib/types'
+import Button from '@/components/Button.astro'
+interface Props {
+  block: CTABlock
+}
+const { block } = Astro.props
+---
+
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6" data-reveal>
+  <div
+    class="flex flex-col items-start gap-6 rounded-[var(--radius-card)] p-10 md:flex-row md:items-center md:justify-between md:p-14"
+    style="background-color: var(--bg-elevated);"
+  >
+    <div class="max-w-xl">
+      <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">{block.heading}</h2>
+      {block.body && <p class="mt-3 text-lg" style="color: var(--fg-muted);">{block.body}</p>}
+    </div>
+    <Button href={block.cta.href} variant={block.cta.variant || 'primary'}>
+      {block.cta.label}
+    </Button>
+  </div>
+</section>
